@@ -14,12 +14,12 @@ This Arduino library is called LVGL_CYD and it exists to make life easier for pe
 
 &nbsp;
 
-* **Auto detects board variant** at run time: same code works on all these boards.
+* **Auto detects board variant** at runtime: same code works on all these boards.
     * Or all the variants I have had my hands on, anyway. See below for details.
 * Has modified **touch drivers included** for both capacitive and resistive touch screens and settings optimized for this hardware.
     * **Resistive touch works better** because I modified the driver to poll only and set slightly lower pressure threshold.
     * **Self-contained**. All you need is TFT_eSPI (for the display), LVGL (obviously) and this library.
-* **Hides complexity**. Startup boilerplate code for display and touch all in `LVGL_CYD_begin()` function.
+* **Hides complexity**. Startup boilerplate code for display and touch all in `LVGL_CYD::begin()` function.
 * Startup takes rotation as argument, optionally in `USB_LEFT` format. **No more guessing which way display will face**.
 * Functions to set color and brightness of built-in **RGB LED** and brightness of **LCD backlight**
 * **Clear well-documented examples**, one shows a simple but complete multi-screen interface that may be a good starting point for your own work.
