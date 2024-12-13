@@ -66,17 +66,17 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
   // detect capacitive touch chip (when something answers at its I2C address)
   Wire.begin(I2C_SDA, I2C_SCL);
   Wire.beginTransmission(I2C_ADDR_CST820);
-  capacitive = Wire.endTransmission() == 0;
+  LVGL_CYD::capacitive = Wire.endTransmission() == 0;
   Wire.end();
-  if (capacitive) {
+  if (LVGL_CYD::capacitive) {
     Serial.println("Capacitive touch detected");
     pinMode(BACKLIGHT_CAPACITIVE, OUTPUT);
   } else {
     // detect resistive touch chip (when something pulls up the IRQ)
     pinMode(XPT2046_IRQ, INPUT_PULLDOWN);
-    resistive = digitalRead(XPT2046_IRQ);
+    LVGL_CYD::resistive = digitalRead(XPT2046_IRQ);
     pinMode(XPT2046_IRQ, INPUT);
-    if (resistive) {
+    if (LVGL_CYD::resistive) {
       Serial.println("Resistive touch detected");
       pinMode(XPT2046_CS, OUTPUT);
       digitalWrite(XPT2046_CS, HIGH);
@@ -104,7 +104,7 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
   }
 
   // if there's a touch screen, set up corresponding LVGL input device
-  if (capacitive || resistive) {
+  if (LVGL_CYD::capacitive || LVGL_CYD::resistive) {
     lv_indev_t * indev = lv_indev_create();
     lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
     // Set the callback function to read Touchscreen input
@@ -112,7 +112,7 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
   }
 
   // backlight to full brightness
-  backlight(0xff);
+  LVGL_CYD::backlight(0xff);
 
 }
 
@@ -122,7 +122,7 @@ void LVGL_CYD::touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
 
   lv_disp_t * display = lv_disp_get_default();
 
-  if (capacitive) {
+  if (LVGL_CYD::capacitive) {
   
     uint8_t touchdata[5];
     Wire.begin(I2C_SDA, I2C_SCL);
@@ -147,9 +147,9 @@ void LVGL_CYD::touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
     touchSPI.beginTransaction(SPI_SETTING);
     digitalWrite(XPT2046_CS, LOW);
 		touchSPI.transfer(0xB1 /* Z1 */);
-		pressure = (touchSPI.transfer16(0xC1) >> 3) + 4095;
-		pressure -= touchSPI.transfer16(0x91) >> 3;
-		if (pressure >= Z_THRESHOLD) {
+		LVGL_CYD::pressure = (touchSPI.transfer16(0xC1) >> 3) + 4095;
+		LVGL_CYD::pressure -= touchSPI.transfer16(0x91) >> 3;
+		if (LVGL_CYD::pressure >= Z_THRESHOLD) {
 			touchSPI.transfer16(0x91 /* X */);  // dummy X measure, 1st is always noisy
 			touchdata[0] = touchSPI.transfer16(0xD1 /* Y */) >> 3;
 			touchdata[1] = touchSPI.transfer16(0x91 /* X */) >> 3; // make 3 x-y measurements
@@ -160,7 +160,7 @@ void LVGL_CYD::touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
 		touchdata[5] = touchSPI.transfer16(0) >> 3;
 		digitalWrite(XPT2046_CS, HIGH);
 		touchSPI.endTransaction();
-    if (pressure < Z_THRESHOLD) {
+    if (LVGL_CYD::pressure < Z_THRESHOLD) {
       data->state = LV_INDEV_STATE_RELEASED;
       return;
     }
@@ -210,7 +210,7 @@ int16_t LVGL_CYD::besttwoavg(int16_t a, int16_t b, int16_t c) {
 }
 
 void LVGL_CYD::backlight(uint8_t brightness) {
-  analogWrite(capacitive ? BACKLIGHT_CAPACITIVE : BACKLIGHT_RESISTIVE, brightness);
+  analogWrite(LVGL_CYD::capacitive ? BACKLIGHT_CAPACITIVE : BACKLIGHT_RESISTIVE, brightness);
 }
 
 // prevent brief PWM startup flash when LED is never used.
