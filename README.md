@@ -128,6 +128,7 @@ void LVGL_CYD::led(uint8_t red, uint8_t green, uint8_t blue, bool true_color = t
 bool LVGL_CYD::capacitive;
 bool LVGL_CYD::resistive;
 int16_t LVGL_CYD::pressure;
+TFT_eSPI * tft;
 ```
 
 &nbsp;
@@ -142,7 +143,7 @@ Currently, CYD detection in this library functions as follows:
 
 2. Otherwise, it assumes the backlight is on GPIO21 and it checks if a resistive touch chip is detected (if something is pulling up the IRQ line).
 
-3. Onky if one of the touch chips is detected, an LVGL input device is created and configured.
+3. Only if one of the touch chips is detected, an LVGL input device is created and configured.
 
 If I learn of more variants that need to be treated differently, I'll see if they can be differentiated from these variants automatically and adjust the code accordingly. Pull Requests or complete reports with differences and ideas on how to detect are appreciated.
 
@@ -164,7 +165,7 @@ I have three different variants of the CYD: the 'regular' 2.8" resistive touch v
 
 For the XPT2046 resistive touch chip, I took, stripped and simplified the code from [Paul Stoffregen's XPT2046 Arduino library](https://github.com/PaulStoffregen/XPT2046_Touchscreen). I found that taking out the code that waits for the IRQ signal and simply polling the chip works better: more touches are detected. Looks to me like even touches that meet the set pressure threshold sometimes do not signal the interrupt, somehow. Then I lowered the pressure threshold a bit and that made it work a little smoother still. Certainly better than I expected from resistive touch.
 
-It's not linear, nor repeatable, but if you have a use for the touch pressure currently sensed, it is in `LVGL_CYD::pressure`.  
+It's not linear, nor repeatable, but if you have a use for the touch pressure currently sensed, it is in `LVGL_CYD::pressure`.
 
 #### capacitive
 

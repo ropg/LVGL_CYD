@@ -15,6 +15,7 @@ uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 #define I2C_ADDR_CST820 0x15
 
 // resistive touch
+#include <SPI.h>
 #define XPT2046_IRQ     36
 #define XPT2046_MOSI    32
 #define XPT2046_MISO    39
@@ -54,7 +55,7 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
 
   Serial.begin(115200);
 
-  Serial.println("LVGL_CYD starting");
+  Serial.printf("LVGL_CYD version: %s\n", LVGL_CYD_VERSION);
   Serial.printf("TFT_eSPI version: %s\n", TFT_ESPI_VERSION);
   Serial.printf("LVGL version: %i.%i.%i\n", lv_version_major(), lv_version_minor(), lv_version_patch());
 
@@ -89,7 +90,7 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
 
   // initialize display using TFT_eSPI library
 
-  lv_disp_t *  display = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, sizeof(draw_buf));
+  lv_disp_t * display = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, sizeof(draw_buf));
   lv_display_set_rotation(display, rotation);
 
   // pointer to a TFT_eSPI object for the screen
@@ -225,10 +226,10 @@ void LVGL_CYD::led(uint8_t red, uint8_t green, uint8_t blue, bool true_color) {
     green = 255 - green;
     blue  = 255 - blue;
   }
-  if (red < 255)   led_used_r = true;
-  if (led_used_r) analogWrite(LED_R, red);
-  if (green < 255) led_used_g = true;
-  if (led_used_g) analogWrite(LED_G, green);
-  if (blue < 255)  led_used_b = true;
-  if (led_used_b) analogWrite(LED_B, blue);    
+  if (red < 255)   LVGL_CYD::led_used_r = true;
+  if (green < 255) LVGL_CYD::led_used_g = true;
+  if (blue < 255)  LVGL_CYD::led_used_b = true;
+  if (LVGL_CYD::led_used_r) analogWrite(LED_R, red);
+  if (LVGL_CYD::led_used_g) analogWrite(LED_G, green);
+  if (LVGL_CYD::led_used_b) analogWrite(LED_B, blue);    
 }
