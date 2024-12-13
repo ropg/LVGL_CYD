@@ -1,6 +1,8 @@
 #ifndef _LVGL_CYD_h_
 #define _LVGL_CYD_h_
 
+#define LVGL_CYD_VERSION "1.1.0"
+
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 
