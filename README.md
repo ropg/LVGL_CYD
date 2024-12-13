@@ -138,7 +138,7 @@ int16_t LVGL_CYD::pressure;
 
 Currently, CYD detection in this library functions as follows:
 
-1. If the capactive touch chip used in the CYD capacitive variants is detected on the I2C bus, we assume the display has its backlight on GPIO27 and the display needs to be inverted. (This is only because the 2.4" and 2.8" capacitive touch units I got all work that way.)
+1. If the capactive touch chip used in the CYD capacitive variants is detected on the I2C bus, we assume the display has its backlight on GPIO27.
 
 2. Otherwise, it assumes the backlight is on GPIO21 and it checks if a resistive touch chip is detected (if something is pulling up the IRQ line).
 
@@ -147,6 +147,16 @@ Currently, CYD detection in this library functions as follows:
 If I learn of more variants that need to be treated differently, I'll see if they can be differentiated from these variants automatically and adjust the code accordingly. Pull Requests or complete reports with differences and ideas on how to detect are appreciated.
 
 `LVGL_CYD::capacitive` and `LVGL_CYD::resistive` are boolean values that you can read if your code needs to know which variant was detected.
+
+### Screen
+
+#### some displays needed to be inverted until they didn't
+
+I have three different variants of the CYD: the 'regular' 2.8" resistive touch variant with micro-USB, a 2.8" capacitive touch variant with USB-C connector and a 2.4" capacitive touch variant with USB-C. I discovered that the capacitive 2.8" wants its display inverted, but the 2.4" does not. To investigate how my code could differentiate between the displays that did and did not need inversion, I was reading various registers from the display controller. When I did that the problem mysteriously went away: the 2.8" did not need it's display inverted anymore. I narrowed it down to where if `readcommand8(0xC0, 0)` is issued to the ILI9341 display controller, the screen does not need to be inverted anymore. No idea why but I'll take it, so that's what my startup code does. At least for now.
+
+#### talking to display directly yourself
+
+`LVGL_CYD::tft` is a convenience pointer to the `TFT_eSPI` screen object if you need ever to talk to the display directly, meaning without LVGL in-between.
 
 ### Touch
 

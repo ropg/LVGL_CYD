@@ -92,13 +92,11 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
   lv_disp_t *  display = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, sizeof(draw_buf));
   lv_display_set_rotation(display, rotation);
 
-  // capacitve touch screen units need their display inverted
-  if (capacitive) {
-    lv_tft_espi_t * driver_data = (lv_tft_espi_t *) lv_display_get_driver_data(display);
-    driver_data->tft->invertDisplay(1);
-  }
   // pointer to a TFT_eSPI object for the screen
   LVGL_CYD::tft = * (TFT_eSPI * *) lv_display_get_driver_data(display);
+
+  // Mystery command to fix the display inversion, see README.md
+  LVGL_CYD::tft->readcommand8(0xC0, 0);
 
 
   // if there's a touch screen, set up corresponding LVGL input device
