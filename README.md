@@ -26,7 +26,7 @@ This Arduino library is called LVGL_CYD and it exists to make life easier for pe
 
 &nbsp;
 
-## Getting started
+## Getting Started
 
 ### Install board and libraries
 
@@ -181,7 +181,7 @@ Set the backlight brightness with `LVGL_CYD::backlight(brightness)`, where brigh
 
 &nbsp;
 
-## Good to know
+## Good To Know
 
 ### LDR / Light Sensor
 
