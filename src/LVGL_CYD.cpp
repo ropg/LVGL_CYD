@@ -40,13 +40,6 @@ uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 // Light sensor
 #define LDR        34
 
-// This is how the "driver data" is stored in the LVGL display object
-// (We need the underlying TFT_eSPI object to invert the display for
-// the CYD capacitive touch displays.)
-typedef struct {
-    TFT_eSPI * tft;
-} lv_tft_espi_t;
-
 SPIClass touchSPI = SPIClass(VSPI);
 
 bool LVGL_CYD::capacitive;
@@ -54,6 +47,8 @@ bool LVGL_CYD::capacitive;
 bool LVGL_CYD::resistive;
 
 int16_t LVGL_CYD::pressure;
+
+TFT_eSPI * LVGL_CYD::tft;
 
 void LVGL_CYD::begin(lv_display_rotation_t rotation) {
 
@@ -102,6 +97,9 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
     lv_tft_espi_t * driver_data = (lv_tft_espi_t *) lv_display_get_driver_data(display);
     driver_data->tft->invertDisplay(1);
   }
+  // pointer to a TFT_eSPI object for the screen
+  LVGL_CYD::tft = * (TFT_eSPI * *) lv_display_get_driver_data(display);
+
 
   // if there's a touch screen, set up corresponding LVGL input device
   if (LVGL_CYD::capacitive || LVGL_CYD::resistive) {
