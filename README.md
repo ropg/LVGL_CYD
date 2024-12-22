@@ -14,11 +14,11 @@ This Arduino library is called LVGL_CYD and it exists to make life easier for pe
 
 &nbsp;
 
-* **Auto detects board variant** at runtime: same code works on all these boards.
-    * Or all the variants I have had my hands on, anyway. See below for details.
+* **Auto detects board variant** at runtime: same code works on a number of these boards.
+    * Won't work on all the more obscure versions, but does on the variants I have had my hands on. See below for details.
 * Has modified **touch drivers included** for both capacitive and resistive touch screens and settings optimized for this hardware.
     * **Resistive touch works better** because I modified the driver to poll only and set slightly lower pressure threshold.
-    * **Self-contained**. All you need is TFT_eSPI (for the display), LVGL (obviously) and this library.
+    * **Self-contained**. No setting up drivers, messing with lots of files, apart from modifying one config file (see below) it all works out of the box.
 * **Hides complexity**. Startup boilerplate code for display and touch all in `LVGL_CYD::begin()` function.
 * Startup takes rotation as argument, optionally in `USB_LEFT` format. **No more guessing which way display will face**.
 * Functions to set color and brightness of built-in **RGB LED** and brightness of **LCD backlight**
@@ -151,9 +151,16 @@ If I learn of more variants that need to be treated differently, I'll see if the
 
 ### Screen
 
-#### some displays needed to be inverted until they didn't
+#### different CYD variants
 
-I have three different variants of the CYD: the 'regular' 2.8" resistive touch variant with micro-USB, a 2.8" capacitive touch variant with USB-C connector and a 2.4" capacitive touch variant with USB-C. I discovered that the capacitive 2.8" wants its display inverted, but the 2.4" does not. To investigate how my code could differentiate between the displays that did and did not need inversion, I was reading various registers from the display controller. When I did that the problem mysteriously went away: the 2.8" did not need it's display inverted anymore. I narrowed it down to where if `readcommand8(0xC0, 0)` is issued to the ILI9341 display controller, the screen does not need to be inverted anymore. No idea why but I'll take it, so that's what my startup code does. At least for now.
+I have four different variants of the CYD:
+
+* the 'regular' 2.8" resistive touch variant with micro-USB
+* a 2.8" capacitive touch variant with USB-C connector
+* a 2.4" capacitive touch variant with USB-C and
+* a 2.8" resistive touch variant with both USB-C and micro-USB.
+
+The capacitive 2.8" and the thing with the two USB connectors have ST7789 instead of ILI9341 as display controller. It works with the standard TFT_eSPI (ILI9341) settings, my library just needs to invert the colors on the display and do a [fix](https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/8ec3f68fce48363ffa1aea607b329e1412ac11c7/cyd.md#the-display-doesnt-look-as-good) to the gamma curves. That's why my code reads a register on the display to see if it's an ILI9341, and if not it assumes it's an ST7789. 
 
 #### talking to display directly yourself
 

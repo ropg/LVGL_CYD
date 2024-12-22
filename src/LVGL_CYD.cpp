@@ -1,10 +1,19 @@
 #include <LVGL_CYD.h>
 
+#include <spi_lcd_read.h>
+
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
 
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
+
+// display
+#define LCD_DC    2  // Data / Command
+#define LCD_SCK  14  // SPI clock
+#define LCD_MISO 12  // SPI MISO
+#define LCD_MOSI 13  // SPI MOSI
+#define LCD_CS   15  // LCD chip select
 
 // capacitive touch
 #include <Wire.h>
@@ -42,6 +51,10 @@ uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 #define LDR        34
 
 SPIClass touchSPI = SPIClass(VSPI);
+
+// spi_lcd_read
+SPIClass displaySPI = SPIClass(HSPI);
+SPI_LCD_READ slr;
 
 bool LVGL_CYD::capacitive;
 
@@ -83,6 +96,22 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
     }
   }
 
+  // display detection
+  bool ili9341;
+  slr.begin(&displaySPI, LCD_SCK, LCD_MISO, LCD_MOSI, LCD_CS, LCD_DC);
+  // see if it's an ILI9341 or not
+  uint8_t ID4[4];
+  slr.readBufferIndex(0xD3, ID4, 4);
+  if (ID4[2] == 0x93 && ID4[3] == 0x41) {
+    ili9341 = true;
+    Serial.println("ILI9341 detected");
+  } else {
+    ili9341 = false;
+    Serial.println("ST7789 assumed (needs invert command)");
+  }
+  slr.end();
+
+
   // start LVGL
   lv_init();
 
@@ -96,16 +125,24 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
   // pointer to a TFT_eSPI object for the screen
   LVGL_CYD::tft = * (TFT_eSPI * *) lv_display_get_driver_data(display);
 
-  // Mystery command to fix the display inversion, see README.md
-  LVGL_CYD::tft->readcommand8(0xC0, 0);
+  if (!ili9341) {
+    // ST7789 needs to be inverted
+    LVGL_CYD::tft->invertDisplay(true);
 
+    // gamma fix for ST7789
+    LVGL_CYD::tft->writecommand(ILI9341_GAMMASET); //Gamma curve selected
+    LVGL_CYD::tft->writedata(2);
+    delay(120);
+    LVGL_CYD::tft->writecommand(ILI9341_GAMMASET); //Gamma curve selected
+    LVGL_CYD::tft->writedata(1);
+  }
 
   // if there's a touch screen, set up corresponding LVGL input device
   if (LVGL_CYD::capacitive || LVGL_CYD::resistive) {
     lv_indev_t * indev = lv_indev_create();
     lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
     // Set the callback function to read Touchscreen input
-    lv_indev_set_read_cb(indev, touch_read);
+    lv_indev_set_read_cb(indev, LVGL_CYD::touch_read);
   }
 
   // backlight to full brightness
