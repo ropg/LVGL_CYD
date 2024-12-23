@@ -20,12 +20,6 @@ class LVGL_CYD {
     static bool resistive;
     static int16_t pressure;
     static TFT_eSPI * tft;
-  private:
-    static void touch_read(lv_indev_t * indev, lv_indev_data_t * data);
-    static int16_t besttwoavg(int16_t a, int16_t b, int16_t c);
-    static bool led_used_r;
-    static bool led_used_g;
-    static bool led_used_b;
 };
 
 #endif

@@ -64,6 +64,10 @@ int16_t LVGL_CYD::pressure;
 
 TFT_eSPI * LVGL_CYD::tft;
 
+static void touch_read(lv_indev_t * indev, lv_indev_data_t * data);
+
+static int16_t besttwoavg(int16_t a, int16_t b, int16_t c);
+
 void LVGL_CYD::begin(lv_display_rotation_t rotation) {
 
   Serial.begin(115200);
@@ -142,7 +146,7 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
     lv_indev_t * indev = lv_indev_create();
     lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
     // Set the callback function to read Touchscreen input
-    lv_indev_set_read_cb(indev, LVGL_CYD::touch_read);
+    lv_indev_set_read_cb(indev, touch_read);
   }
 
   // backlight to full brightness
@@ -150,7 +154,7 @@ void LVGL_CYD::begin(lv_display_rotation_t rotation) {
 
 }
 
-void LVGL_CYD::touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
+static void touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
 
   int x, y;
 
@@ -175,7 +179,7 @@ void LVGL_CYD::touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
     x = ((touchdata[1] & 0x0f) << 8) | touchdata[2];
     y = ((touchdata[3] & 0x0f) << 8) | touchdata[4];
   
-  } else if (resistive) {
+  } else if (LVGL_CYD::resistive) {
     
     int16_t touchdata[6] = {0};
     touchSPI.beginTransaction(SPI_SETTING);
@@ -234,7 +238,7 @@ void LVGL_CYD::touch_read(lv_indev_t * indev, lv_indev_data_t * data) {
 }
 
 // Out of three values, returns average of the two closest together
-int16_t LVGL_CYD::besttwoavg(int16_t a, int16_t b, int16_t c) {
+static int16_t besttwoavg(int16_t a, int16_t b, int16_t c) {
   int16_t dab = abs(a - b);
   int16_t dbc = abs(b - c);
   int16_t dca = abs(c - a);
@@ -248,9 +252,9 @@ void LVGL_CYD::backlight(uint8_t brightness) {
 }
 
 // prevent brief PWM startup flash when LED is never used.
-bool LVGL_CYD::led_used_r = false;
-bool LVGL_CYD::led_used_g = false;
-bool LVGL_CYD::led_used_b = false;
+static bool led_used_r = false;
+static bool led_used_g = false;
+static bool led_used_b = false;
 
 void LVGL_CYD::led(uint8_t red, uint8_t green, uint8_t blue, bool true_color) {
   // Serial.printf("LED: r=%i, g=%i, b=%i, true=%i\n", red, green, blue, true);
@@ -263,10 +267,10 @@ void LVGL_CYD::led(uint8_t red, uint8_t green, uint8_t blue, bool true_color) {
     green = 255 - green;
     blue  = 255 - blue;
   }
-  if (red < 255)   LVGL_CYD::led_used_r = true;
-  if (green < 255) LVGL_CYD::led_used_g = true;
-  if (blue < 255)  LVGL_CYD::led_used_b = true;
-  if (LVGL_CYD::led_used_r) analogWrite(LED_R, red);
-  if (LVGL_CYD::led_used_g) analogWrite(LED_G, green);
-  if (LVGL_CYD::led_used_b) analogWrite(LED_B, blue);    
+  if (red < 255)   led_used_r = true;
+  if (green < 255) led_used_g = true;
+  if (blue < 255)  led_used_b = true;
+  if (led_used_r) analogWrite(LED_R, red);
+  if (led_used_g) analogWrite(LED_G, green);
+  if (led_used_b) analogWrite(LED_B, blue);    
 }
