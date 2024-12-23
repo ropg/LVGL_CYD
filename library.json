@@ -1,0 +1,25 @@
+{
+    "name": "LVGL_CYD",
+    "version": "1.2.0",
+    "description": "Running LVGL on CYD, all the boilerplate stuff. Detects board variants at runtime. Includes the touch drivers, both capacitive and resistive.",
+    "keywords": "CYD, LVGL, TFT, Touch",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/ropg/LVGL_CYD"
+    },
+    "authors": [
+      {
+        "name": "Rop Gonggrijp",
+        "email": "rop@gonggri.jp",
+        "maintainer": true
+      }
+    ],
+    "license": "MIT",
+    "frameworks": "arduino",
+    "platforms": "esp32",
+    "dependencies": {
+        "ropg/spi_lcd_read": "^1.0.0",
+        "TFT_eSPI": "^2.5.43",
+        "LVGL": "^9.2.2"
+    }
+  }
