@@ -1,7 +1,7 @@
 #ifndef _LVGL_CYD_h_
 #define _LVGL_CYD_h_
 
-#define LVGL_CYD_VERSION "1.2.0"
+#define LVGL_CYD_VERSION "1.2.1"
 
 #include <lvgl.h>
 #include <TFT_eSPI.h>
