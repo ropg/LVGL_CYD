@@ -61,18 +61,23 @@ void loop() {
 }
 
 
-// creates a new obj to use as base screen, and set some properties, such as flex
-// vertical arrangement, centered horizontally, transparent background, etc.
-lv_obj_t * new_screen(lv_obj_t * parent) {
+// new_screen creates a new obj to use as a base screen, and sets some properties
+lv_obj_t * new_screen() {
 
-  lv_obj_t * obj = lv_obj_create(parent);
+  lv_obj_t * obj = lv_obj_create(NULL);
+  // transparent background (we use the bottom screen layer for that)
   lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_MAIN);
+  // no scrollable
   lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+  // no border
   lv_obj_set_style_border_width(obj, 0, 0);
+  // flex layout (self-arranging its children)
   lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  // 20 pixels padding at top and bottom of screen
   lv_obj_set_style_pad_top(obj, 20, LV_PART_MAIN);
+  // 10 pixels padding between items
   lv_obj_set_style_pad_row(obj, 10, LV_PART_MAIN);
 
   return obj;
@@ -88,9 +93,9 @@ lv_obj_t * scr_main = nullptr;
 void go_main() {
   if (!scr_main) {
     // if screen doesn't exist yet, create it and its children
-    scr_main = new_screen(NULL);
+    scr_main = new_screen();
 
-    lv_obj_set_size(scr_main, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
+    // lv_obj_set_size(scr_main, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
 
     lv_obj_t * btn_led = lv_button_create(scr_main);
     lv_obj_t * lbl_led = lv_label_create(btn_led);
@@ -142,7 +147,7 @@ lv_obj_t * sw_led_true;
 void go_led() {
 
   if (!scr_led) {
-    scr_led = new_screen(NULL);
+    scr_led = new_screen();
 
     // switch between true colors and max brightness
     lv_obj_t * sw_container = lv_obj_create(scr_led);
@@ -201,18 +206,18 @@ static void scr_led_cb(lv_event_t * e) {
 
 
 //
-// LBacklight brightness screen
+// Backlight brightness screen
 //
 
 lv_obj_t * scr_bl;
 
-// These need to be global as they are referenced in the callback.
+// global because referenced in callback
 lv_obj_t * slider_bl;
 
 void go_bl() {
 
   if (!scr_bl) {
-    scr_bl = new_screen(NULL);
+    scr_bl = new_screen();
 
     slider_bl = lv_slider_create(scr_bl);
     lv_obj_set_width(slider_bl, lv_pct(80));
@@ -236,12 +241,12 @@ void go_bl() {
 
 
 //
-// scr_touch
+// Touch demonstration screen
 //
 
 lv_obj_t * scr_touch;
 
-// These need to be global as they are used in the callback.
+// global because used in callback.
 lv_obj_t * horizontal;
 lv_obj_t * vertical;
 
@@ -249,11 +254,15 @@ void go_touch() {
 
   if (!scr_touch) {
 
-    scr_touch = new_screen(NULL);
-    lv_obj_set_layout(scr_touch, LV_LAYOUT_NONE);         // need to place children (the crosshairs) manually
+    scr_touch = new_screen();
+    // cancel flex from new_screen: need to place children (the crosshairs) manually
+    lv_obj_set_layout(scr_touch, LV_LAYOUT_NONE);
+    // no padding at top
     lv_obj_set_style_pad_top(scr_touch, 0, LV_PART_MAIN);
+    // clickable
     lv_obj_add_flag(scr_touch, LV_OBJ_FLAG_CLICKABLE);
 
+    // horizontal crosshair
     horizontal = lv_obj_create(scr_touch);
     lv_obj_set_style_border_width(horizontal, 0, 0);
     lv_obj_set_style_radius(horizontal, 0, LV_PART_MAIN);
@@ -261,6 +270,7 @@ void go_touch() {
     lv_obj_set_style_bg_color(horizontal, lv_color_black(), LV_PART_MAIN);
     lv_obj_clear_flag(horizontal, LV_OBJ_FLAG_CLICKABLE);
 
+    // vertical crosshair
     vertical = lv_obj_create(scr_touch);
     lv_obj_set_style_border_width(vertical, 0, 0);
     lv_obj_set_style_radius(vertical, 0, LV_PART_MAIN);
@@ -268,18 +278,24 @@ void go_touch() {
     lv_obj_set_style_bg_color(vertical, lv_color_black(), LV_PART_MAIN);
     lv_obj_clear_flag(vertical, LV_OBJ_FLAG_CLICKABLE);
     
+    // callback
     lv_obj_add_event_cb(scr_touch, [](lv_event_t * e) -> void {
       if (lv_event_get_code(e) == LV_EVENT_PRESSED || lv_event_get_code(e) == LV_EVENT_PRESSING) {
+        // when pressed get the current touch point
         lv_point_t point;
-        lv_indev_get_point(lv_indev_get_act(), &point); // Get the current touch point
+        lv_indev_get_point(lv_indev_get_act(), &point);
+        // show crosshairs in proper position
         lv_obj_set_y(horizontal, point.y);
         lv_obj_set_x(vertical, point.x);
         lv_obj_clear_flag(horizontal, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(vertical, LV_OBJ_FLAG_HIDDEN);
+        // remove exit button
         lv_obj_add_flag(btn_exit, LV_OBJ_FLAG_HIDDEN);
       } else if (lv_event_get_code(e) == LV_EVENT_RELEASED) {
+        // when released hide crosshairs
         lv_obj_add_flag(horizontal, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(vertical, LV_OBJ_FLAG_HIDDEN);
+        // put back exit button
         lv_obj_clear_flag(btn_exit, LV_OBJ_FLAG_HIDDEN);
       }
     }, LV_EVENT_ALL, NULL);
@@ -294,13 +310,15 @@ void go_touch() {
 }
 
 //
-// Rotate
+// Rotate screen
 //
 
 void go_rotate() {
-
+  // get display
   lv_disp_t * display = lv_disp_get_default();
+  // get its rotation
   lv_display_rotation_t rotation = lv_display_get_rotation(display);
+  // rotate to next rotation
   if (rotation == USB_LEFT) lv_display_set_rotation(display, USB_DOWN);
   else if (rotation == USB_DOWN) lv_display_set_rotation(display, USB_RIGHT);
   else if (rotation == USB_RIGHT) lv_display_set_rotation(display, USB_UP);
