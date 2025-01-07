@@ -32,6 +32,9 @@ This Arduino library is called LVGL_CYD and it exists to make life easier for pe
 
 In the Arduino IDE, under 'Boards', install Espressif's support for the ESP32. In the board selection box at the top of the screen, look for "CYD" and select ESP32-2432S028R" as the board. Then install this library by searching for 'LVGL_CYD'. The IDE should then automatically install TFT_eSPI and LVGL if they aren't installed already.
 
+> [!NOTE]  
+> Some users have [reported](https://github.com/ropg/LVGL_CYD/issues/1) that my library [`spi_lcd_read`](https://github.com/ropg/spi_lcd_read), which this library depends on, does not get installed automatically even though it is listed as a dpendency. If that does not install together with this one, you can install it manually.
+
 ### Setting up LVGL with `lv_conf.h`
 
 #### copy file
