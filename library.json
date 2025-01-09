@@ -1,7 +1,7 @@
 {
     "name": "LVGL_CYD",
     "version": "1.2.2",
-    "description": "Running LVGL on CYD, all the boilerplate stuff. Detects board variants at runtime. Includes the touch drivers, both capacitive and resistive.",
+    "description": "Running LVGL on CYD, all the boilerplate stuff. Detects board variants at runtime. Includes the touch drivers, both capacitive and resistive. Demo in examples is complete multi-screen app.",
     "keywords": "CYD, LVGL, TFT, Touch",
     "repository": {
       "type": "git",
