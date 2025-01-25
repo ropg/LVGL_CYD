@@ -20,7 +20,7 @@ This Arduino library is called LVGL_CYD and it exists to make life easier for pe
     * **Resistive touch works better** because I modified the driver to poll only and set slightly lower pressure threshold.
     * **Self-contained**. No setting up drivers, messing with lots of files, apart from modifying one config file (see below) it all works out of the box.
 * **Hides complexity**. Startup boilerplate code for display and touch all in `LVGL_CYD::begin()` function.
-* Startup takes rotation as argument, optionally in `USB_LEFT` format. **No more guessing which way display will face**.
+* Startup takes rotation as argument, optionally in `USB_LEFT` format. **No more guessing which way the display will face**.
 * Functions to set color and brightness of built-in **RGB LED** and brightness of **LCD backlight**
 * **Clear well-documented examples**, one shows a simple but complete multi-screen interface that may be a good starting point for your own work.
 
@@ -32,7 +32,7 @@ This Arduino library is called LVGL_CYD and it exists to make life easier for pe
 
 In the Arduino IDE, under 'Boards', install Espressif's support for the ESP32. In the board selection box at the top of the screen, look for "CYD" and select ESP32-2432S028R" as the board. Then install this library by searching for 'LVGL_CYD'. The IDE should then automatically install TFT_eSPI, LVGL and my small utility [spi_lcd_read](https://github.com/ropg/spi_lcd_read) if they aren't installed already.
 
-> (Arduino IDE will also tell you that dependencies need to be installed when they are in fact iunstalled already. This is a [known problem](https://github.com/arduino/arduino-ide/issues/721), just click to install them and only then the IDE will discover that they were already installed.)
+> (Arduino IDE will also tell you that dependencies need to be installed when they are in fact installed already. This is a [known problem](https://github.com/arduino/arduino-ide/issues/721), just click to install them and only then the IDE will discover that they were already installed.)
 
 ### Setting up LVGL with `lv_conf.h`
 
